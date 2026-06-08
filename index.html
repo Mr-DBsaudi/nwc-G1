@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>التقارير الخمسة — Power BI | شركة المياه الوطنية</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:#0a0f1e; --bg2:#0e1528; --bg3:#131a30; --card:#111827;
+    --border:rgba(255,255,255,0.07); --border2:rgba(255,255,255,0.13);
+    --text:#e8eaf0; --muted:#7a8099; --accent:#00d4ff;
+    --c1:#00d4ff; --c2:#00e896; --c3:#ffb800; --c4:#ff5e5e; --c5:#a78bfa;
+  }
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'IBM Plex Sans Arabic',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+  body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(0,212,255,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(0,212,255,0.03) 1px,transparent 1px);background-size:48px 48px;pointer-events:none;z-index:0}
+
+  header{position:relative;z-index:1;padding:64px 40px 48px;max-width:1100px;margin:0 auto;border-bottom:1px solid var(--border)}
+  .logo-row{display:flex;align-items:center;gap:14px;margin-bottom:32px}
+  .logo-icon{width:44px;height:44px;border:1.5px solid var(--accent);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;color:var(--accent);flex-shrink:0;box-shadow:0 0 16px rgba(0,212,255,0.2)}
+  .logo-text{font-size:13px;font-weight:500;color:var(--muted);letter-spacing:.08em;text-transform:uppercase}
+  .hero-title{font-size:clamp(28px,4vw,46px);font-weight:700;line-height:1.2;margin-bottom:16px;color:#fff}
+  .hero-title span{color:var(--accent)}
+  .hero-sub{font-size:16px;color:var(--muted);font-weight:300;max-width:520px;line-height:1.7}
+  .stats-row{display:flex;gap:32px;margin-top:36px;flex-wrap:wrap}
+  .stat{display:flex;flex-direction:column;gap:4px}
+  .stat-num{font-size:28px;font-weight:700;color:var(--accent);font-variant-numeric:tabular-nums}
+  .stat-lbl{font-size:12px;color:var(--muted)}
+
+  main{position:relative;z-index:1;max-width:1100px;margin:0 auto;padding:56px 40px 80px;display:flex;flex-direction:column;gap:28px}
+
+  .report-card{background:var(--card);border:1px solid var(--border);border-radius:16px;overflow:hidden;transition:border-color .25s,transform .25s;opacity:0;transform:translateY(24px);animation:fadeUp .5s forwards}
+  .report-card:hover{border-color:var(--border2);transform:translateY(-2px)}
+  .report-card:nth-child(2){animation-delay:.05s;--clr:var(--c1)}
+  .report-card:nth-child(3){animation-delay:.12s;--clr:var(--c2)}
+  .report-card:nth-child(4){animation-delay:.19s;--clr:var(--c3)}
+  .report-card:nth-child(5){animation-delay:.26s;--clr:var(--c4)}
+  .report-card:nth-child(6){animation-delay:.33s;--clr:var(--c5)}
+  @keyframes fadeUp{to{opacity:1;transform:translateY(0)}}
+
+  .card-stripe{height:3px;background:var(--clr);opacity:.8}
+  .card-inner{display:grid;grid-template-columns:240px 1fr;gap:0}
+  .card-left{padding:28px 20px 28px 28px;border-left:1px solid var(--border);display:flex;flex-direction:column;gap:16px}
+  .report-num{font-size:48px;font-weight:700;color:var(--clr);line-height:1;opacity:.25;transition:opacity .2s}
+  .report-card:hover .report-num{opacity:.5}
+  .report-title{font-size:17px;font-weight:600;color:#fff;line-height:1.3}
+  .report-src{font-size:11px;color:var(--muted)}
+  .source-tag{display:inline-block;font-family:'IBM Plex Mono',monospace;font-size:11px;padding:3px 8px;border-radius:4px;background:rgba(255,255,255,0.06);color:var(--clr);border:1px solid rgba(255,255,255,0.08);margin-top:4px;margin-left:4px}
+  .card-right{padding:24px 28px 24px 20px;display:flex;flex-direction:column;gap:20px}
+  .section-label{font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:10px}
+
+  /* ── بطاقة المقياس التفاعلية ── */
+  .measures-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .measure-item{background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:8px;overflow:hidden;cursor:pointer;transition:border-color .2s}
+  .measure-item:hover{border-color:var(--clr)}
+  .measure-item.open{border-color:var(--clr)}
+
+  .measure-header{display:flex;align-items:center;justify-content:space-between;padding:10px 12px;gap:8px;user-select:none}
+  .measure-name{font-size:13px;font-weight:500;color:var(--text);flex:1}
+  .measure-fn{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--clr);opacity:.7;white-space:nowrap}
+  .toggle-icon{width:18px;height:18px;border-radius:50%;border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:transform .25s,background .2s}
+  .measure-item.open .toggle-icon{transform:rotate(45deg);background:rgba(255,255,255,0.08)}
+  .toggle-icon svg{width:10px;height:10px;stroke:var(--muted)}
+
+  /* كود DAX المنسدل */
+  .measure-body{max-height:0;overflow:hidden;transition:max-height .35s ease}
+  .measure-item.open .measure-body{max-height:300px}
+  .dax-block{margin:0 10px 10px;border-radius:6px;background:#0d1117;border:1px solid rgba(255,255,255,0.08);overflow:hidden}
+  .dax-topbar{display:flex;align-items:center;justify-content:space-between;padding:6px 10px;border-bottom:1px solid rgba(255,255,255,0.06)}
+  .dax-lang{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted)}
+  .copy-btn{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);cursor:pointer;padding:2px 8px;border:1px solid rgba(255,255,255,0.1);border-radius:4px;background:transparent;transition:color .15s,border-color .15s}
+  .copy-btn:hover{color:#fff;border-color:rgba(255,255,255,0.3)}
+  .copy-btn.copied{color:var(--c2);border-color:var(--c2)}
+  pre.dax-code{margin:0;padding:12px;font-family:'IBM Plex Mono',monospace;font-size:12px;line-height:1.7;white-space:pre;overflow-x:auto;color:#abb2bf}
+  .kw{color:#c678dd} .fn{color:#61afef} .str{color:#98c379} .num{color:#d19a66} .cmt{color:#5c6370;font-style:italic}
+
+  /* مخططات */
+  .charts-row{display:flex;flex-wrap:wrap;gap:7px}
+  .chart-pill{display:inline-flex;align-items:center;gap:6px;padding:5px 12px;border-radius:20px;font-size:12px;border:1px solid var(--border);color:var(--text);background:rgba(255,255,255,0.03)}
+  .chart-pill.dax{border-color:rgba(0,212,255,0.25);color:var(--accent);background:rgba(0,212,255,0.06)}
+  .chart-pill.tbl{border-color:rgba(0,232,150,0.2);color:#00e896;background:rgba(0,232,150,0.05)}
+  .chart-pill svg{width:14px;height:14px;opacity:.8;flex-shrink:0}
+
+  /* داشبورد ختامي */
+  .dashboard-card{background:linear-gradient(135deg,#0e1a2e 0%,#111827 100%);border:1px solid rgba(167,139,250,0.3);border-radius:16px;padding:32px 36px;display:grid;grid-template-columns:1fr auto;gap:24px;align-items:center;position:relative;overflow:hidden;opacity:0;transform:translateY(24px);animation:fadeUp .5s .42s forwards}
+  .dashboard-card::before{content:'';position:absolute;top:-40px;left:-40px;width:200px;height:200px;background:radial-gradient(circle,rgba(167,139,250,0.08) 0%,transparent 70%);pointer-events:none}
+  .dashboard-title{font-size:20px;font-weight:700;color:#fff;margin-bottom:8px}
+  .dashboard-title span{color:var(--c5)}
+  .dashboard-sub{font-size:14px;color:var(--muted);line-height:1.7;font-weight:300;max-width:560px}
+  .pin-steps{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap}
+  .pin-step{display:flex;align-items:center;gap:7px;font-size:12px;color:var(--muted);padding:6px 12px;border:1px solid var(--border);border-radius:20px;background:rgba(255,255,255,0.03)}
+  .pin-step .dot{width:6px;height:6px;border-radius:50%;background:var(--c5);flex-shrink:0}
+  .big-num{font-size:80px;font-weight:700;color:var(--c5);opacity:.12;line-height:1;flex-shrink:0}
+
+  .legend{display:flex;gap:20px;margin-bottom:8px;flex-wrap:wrap}
+  .leg{display:flex;align-items:center;gap:7px;font-size:12px;color:var(--muted)}
+  .leg-dot{width:10px;height:10px;border-radius:2px;flex-shrink:0}
+
+  @media(max-width:700px){
+    header,main{padding:32px 20px}
+    .card-inner{grid-template-columns:1fr}
+    .card-left{border-left:none;border-bottom:1px solid var(--border);padding:20px}
+    .card-right{padding:20px}
+    .measures-grid{grid-template-columns:1fr}
+    .dashboard-card{grid-template-columns:1fr}
+    .big-num{display:none}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo-row">
+    <div class="logo-icon">◈</div>
+    <span class="logo-text">NWC — شركة المياه الوطنية · برنامج Data Analysis by Power BI</span>
+  </div>
+  <h1 class="hero-title">التقارير <span>الخمسة</span><br>للمتدربين</h1>
+  <p class="hero-sub">كل متدرب يبني خمسة تقارير تدريجية، ثم يجمعها في Dashboard تشغيلي تفاعلي كمشروع ختامي.</p>
+  <div class="stats-row">
+    <div class="stat"><span class="stat-num">5</span><span class="stat-lbl">تقارير تدريبية</span></div>
+    <div class="stat"><span class="stat-num">18</span><span class="stat-lbl">مقياس DAX</span></div>
+    <div class="stat"><span class="stat-num">14</span><span class="stat-lbl">مخططاً بصرياً</span></div>
+    <div class="stat"><span class="stat-num">9</span><span class="stat-lbl">جداول مترابطة</span></div>
+  </div>
+</header>
+
+<main>
+
+<div class="legend">
+  <div class="leg"><div class="leg-dot" style="background:rgba(0,212,255,0.6)"></div>مخطط من مقياس DAX</div>
+  <div class="leg"><div class="leg-dot" style="background:rgba(0,232,150,0.6)"></div>مخطط من الجدول + مقياس عدّ</div>
+</div>
+
+<!-- ══════════════════════════ تقرير 1 ══════════════════════════ -->
+<div class="report-card">
+  <div class="card-stripe"></div>
+  <div class="card-inner">
+    <div class="card-left">
+      <div class="report-num">01</div>
+      <div class="report-title">تقرير العملاء والعدادات</div>
+      <div class="report-src">جدول المصدر</div>
+      <div><span class="source-tag">Customers</span></div>
+    </div>
+    <div class="card-right">
+      <div>
+        <div class="section-label">مقاييس DAX — اضغط لعرض المعادلة</div>
+        <div class="measures-grid">
+
+          <div class="measure-item" onclick="toggle(this)">
+            <div class="measure-header">
+              <span class="measure-name">إجمالي العملاء</span>
+              <span class="measure-fn">COUNT</span>
+              <div class="toggle-icon"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 10 10"><line x1="5" y1="1" x2="5" y2="9"/><line x1="1" y1="5" x2="9" y2="5"/></svg></div>
+            </div>
+            <div class="measure-body">
+              <div class="dax-block">
+                <div class="dax-topbar"><span class="dax-lang">DAX</span><button class="copy-btn" onclick="copyCode(event,this)">نسخ</button></div>
+                <pre class="dax-code"><span class="fn">Total_Customers</span> =
+<span class="kw">COUNT</span>(Customers[AccountID])</pre>
+              </div>
+            </div>
+          </div>
+
+          <div class="measure-item" onclick="toggle(this)">
+            <div class="measure-header">
+              <span class="measure-name">عدد العدادات المتوقفة</span>
+              <span class="measure-fn">CALCULATE</span>
+              <div class="toggle-icon"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 10 10"><line x1="5" y1="1" x2="5" y2="9"/><line x1="1" y1="5" x2="9" y2="5"/></svg></div>
+            </div>
+            <div class="measure-body">
+              <div class="dax-block">
+                <div class="dax-topbar"><span class="dax-lang">DAX</span><button class="copy-btn" onclick="copyCode(event,this)">نسخ</button></div>
+                <pre class="dax-code"><span class="fn">Stopped_Meters</span> =
+<span class="kw">CALCULATE</span>(
+    <span class="kw">COUNT</span>(Customers[MeterID]),
+    Customers[MeterStatus] = <span class="str">"متوقف"</span>
+)</pre>
+              </div>
+            </div>
+          </div>
+
+          <div class="measure-item" onclick="toggle(this)">
+            <div class="measure-header">
+              <span class="measure-name">نسبة العدادات المتوقفة</span>
+              <span class="measure-fn">DIVIDE</span>
+              <div class="toggle-icon"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 10 10"><line x1="5" y1="1" x2="5" y2="9"/><line x1="1" y1="5" x2="9" y2="5"/></svg></div>
+            </div>
+            <div class="measure-body">
+              <div class="dax-block">
+                <div class="dax-topbar"><span class="dax-lang">DAX</span><button class="copy-btn" onclick="copyCode(event,this)">نسخ</button></div>
+                <pre class="dax-code"><span class="fn">Stopped_Meters_Rate</span> =
+<span class="kw">DIVIDE</span>(
+    [Stopped_Meters],
+    <span class="kw">COUNT</span>(Customers[MeterID]),
+    <span class="num">0</span>
+)</pre>
+              </div>
+            </div>
+          </div>
+
+          <div class="measure-item" onclick="toggle(this)">
+            <div class="measure-header">
+              <span class="measure-name">نسبة العدادات الذكية</span>
+              <span class="measure-fn">DIVIDE</span>
+              <div class="toggle-icon"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 10 10"><line x1="5" y1="1" x2="5" y2="9"/><line x1="1" y1="5" x2="9" y2="5"/></svg></div>
+            </div>
+            <div class="measure-body">
+              <div class="dax-block">
+                <div class="dax-topbar"><span class="dax-lang">DAX</span><button class="copy-btn" onclick="copyCode(event,this)">نسخ</button></div>
+                <pre class="dax-code"><span class="fn">Smart_Meter_Rate</span> =
+<span class="kw">DIVIDE</span>(
+    <span class="kw">CALCULATE</span>(
+        <span class="kw">COUNT</span>(Customers[MeterID]),
+        Customers[SmartMeterFlag] = <span class="str">"Y"</span>
+    ),
+    <span class="kw">COUNT</span>(Customers[MeterID]),
+    <span class="num">0</span>
+)</pre>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+      <div>
+        <div class="section-label">المخططات البصرية</div>
+        <div class="charts-row">
+          <span class="chart-pill dax"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>بطاقة KPI — إجمالي العملاء</span>
+          <span class="chart-pill dax"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 3v9l6 3"/></svg>Gauge — نسبة المتوقفة</span>
+          <span class="chart-pill dax"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 3v9l6 3"/></svg>Gauge — نسبة الذكية</span>
+          <span class="chart-pill tbl"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 3v9M3 12h18" opacity=".5"/></svg>دائري — توزيع MeterStatus</span>
+          <span class="chart-pill tbl"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 6h4v14H3zM10 10h4v10h-4zM17 4h4v16h-4z"/></svg>شريطي — العملاء حسب CustomerClass</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════ تقرير 2 ══════════════════════════ -->
+<div class="report-card">
+  <div class="card-stripe"></div>
+  <div class="card-inner">
+    <div class="card-left">
+      <div class="report-num">02</div>
+      <div class="report-title">تقرير الفواتير والتحصيل</div>
+      <div class="report-src">جدول المصدر</div>
+      <div><span class="source-tag">Billing</span></div>
+    </div>
+    <div class="card-right">
+      <div>
+        <div class="section-label">مقاييس DAX — اضغط لعرض المعادلة</div>
+        <div class="measures-grid">
+
+          <div class="measure-item" onclick="toggle(this)">
+            <div class="measure-header">
+              <span class="measure-name">إجمالي قيمة الفواتير</span>
+              <span class="measure-fn">SUM</span>
+              <div class="toggle-icon"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 10 10"><line x1="5" y1="1" x2="5" y2="9"/><line x1="1" y1="5" x2="9" y2="5"/></svg></div>
+            </div>
+            <div class="measure-body">
+              <div class="dax-block">
+                <div class="dax-topbar"><span class="dax-lang">DAX</span><button class="copy-btn" onclick="copyCode(event,this)">نسخ</button></div>
+                <pre class="dax-code"><span class="fn">Total_Bills</span> =
+<span class="kw">SUM</span>(Billing[BillAmount_SAR])</pre>
+              </div>
+            </div>
+          </div>
+
+          <div class="measure-item" onclick="toggle(this)">
+            <div class="measure-header">
+              <span class="measure-name">إجمالي المحصّل</span>
+              <span class="measure-fn">SUM</span>
+              <div class="toggle-icon"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 10 10"><line x1="5" y1="1" x2="5" y2="9"/><line x1="1" y1="5" x2="9" y2="5"/></svg></div>
+            </div>
+            <div class="measure-body">
+              <div class="dax-block">
+                <div class="dax-topbar"><span class="dax-lang">DAX</span><button class="copy-btn" onclick="copyCode(event,this)">نسخ</button></div>
+                <pre class="dax-code"><span class="fn">Total_Paid</span> =
+<span class="kw">SUM</span>(Billing[PaidAmount_SAR])</pre>
+              </div>
+            </div>
+          </div>
+
+          <div class="measure-item" onclick="toggle(this)">
+            <div class="measure-header">
+              <span class="measure-name">نسبة التحصيل</span>
+              <span class="measure-fn">DIVIDE</span>
+              <div class="toggle-icon"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 10 10"><line x1="5" y1="1" x2="5" y2="9"/><line x1="1" y1="5" x2="9" y2="5"/></svg></div>
+            </div>
+            <div class="measure-body">
+              <div class="dax-block">
+                <div class="dax-topbar"><span class="dax-lang">DAX</span><button class="copy-btn" onclick="copyCode(event,this)">نسخ</button></div>
+                <pre class="dax-code"><span class="fn">Collection_Rate</span> =
+<span class="kw">DIVIDE</span>(
+    [Total_Paid],
+    [Total_Bills],
+    <span class="num">0</span>
+)</pre>
+              </div>
+            </div>
+          </div>
+
+          <div class="measure-item" onclick="toggle(this)">
+            <div class="measure-header">
+              <span class="measure-name">إجمالي الاستهلاك</span>
+              <span class="measure-fn">SUM</span>
+              <div class="toggle-icon"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 10 10"><line x1="5" y1="1" x2="5" y2="9"/><line x1="1" y1="5" x2="9" y2="5"/></svg></div>
+            </div>
+            <div class="measure-body">
+              <div class="dax-block">
+                <div class="dax-topbar"><span class="dax-lang">DAX</span><button class="copy-btn" onclick="copyCode(event,this)">نسخ</button></div>
+                <pre class="dax-code"><span class="fn">Total_Consumption</span> =
+<span class="kw">SUM</span>(Billing[Consumption_m3])</pre>
+              </div>
+            </div>
+          </div>
+
+          <div class="measure-item" onclick="toggle(this)">
+            <div class="measure-header">
+              <span class="measure-name">قيمة الفواتير المحسوبة</span>
+              <span class="measure-fn">SUMX</span>
+              <div class="toggle-icon"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 10 10"><line x1="5" y1="1" x2="5" y2="9"/><line x1="1" y1="5" x2="9" y2="5"/></svg></div>
+            </div>
+            <div class="measure-body">
+              <div class="dax-block">
+                <div class="dax-topbar"><span class="dax-lang">DAX</span><button class="copy-btn" onclick="copyCode(event,this)">نسخ</button></div>
+                <pre class="dax-code"><span class="fn">Calculated_Revenue</span> =
+<span class="kw">SUMX</span>(
+    Billing,
+    Billing[Consumption_m3]
+        * Billing[UnitPrice_SAR]
+)</pre>
+              </div>
+            </div>
+          </div>
+
+          <div class="measure-item" onclick="toggle(this)">
+            <div class="measure-header">
+              <span class="measure-name">عدد الفواتير المدفوعة</span>
+              <span class="measure-fn">CALCULATE</span>
+              <div class="toggle-icon"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 10 10"><line x1="5" y1="1" x2="5" y2="9"/><line x1="1" y1="5" x2="9" y2="5"/></svg></div>
+            </div>
+            <div class="measure-body">
+              <div class="dax-block">
+                <div class="dax-topbar"><span class="dax-lang">DAX</span><button class="copy-btn" onclick="copyCode(event,this)">نسخ</button></div>
+                <pre class="dax-code"><span class="fn">Paid_Bills_Count</span> =
+<span class="kw">CALCULATE</span>(
+    <span class="kw">COUNT</span>(Billing[BillID]),
+    Billing[PaymentStatus] = <span class="str">"مدفوعة"</span>
+)</pre>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+      <div>
+        <div class="section-label">المخططات البصرية</div>
+        <div class="charts-row">
+          <span class="chart-pill dax"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>بطاقة KPI — إجمالي الفواتير</span>
+          <span class="chart-pill dax"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 3v9l6 3"/></svg>Gauge — نسبة التحصيل</span>
+          <span class="chart-pill dax"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="3 17 9 11 13 15 21 7"/></svg>خطي — الاستهلاك الشهري</span>
+          <span class="chart-pill tbl"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 3v9M3 12h18" opacity=".5"/></svg>دائري — توزيع PaymentStatus</span>
+          <span class="chart-pill tbl"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 6h4v14H3zM10 10h4v10h-4zM17 4h4v16h-4z"/></svg>شريطي — الفواتير حسب الفرع</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════ تقرير 3 ══════════════════════════ -->
+<div class="report-card">
+  <div class="card-stripe"></div>
+  <div class="card-inner">
+    <div class="card-left">
+      <div class="report-num">03</div>
+      <div class="report-title">تقرير البلاغات والأنشطة الميدانية</div>
+      <div class="report-src">جداول المصدر</div>
+      <div><span class="source-tag">Cases</span><span class="source-tag">FieldActivities</span></div>
+    </div>
+    <div class="card-right">
+      <div>
+        <div class="section-label">مقاييس DAX — اضغط لعرض المعادلة</div>
+        <div class="measures-grid">
+
+          <div class="measure-item" onclick="toggle(this)">
+            <div class="measure-header">
+              <span class="measure-name">إجمالي البلاغات</span>
+              <span class="measure-fn">COUNT</span>
+              <div class="toggle-icon"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 10 10"><line x1="5" y1="1" x2="5" y2="9"/><line x1="1" y1="5" x2="9" y2="5"/></svg></div>
+            </div>
+            <div class="measure-body">
+              <div class="dax-block">
+                <div class="dax-topbar"><span class="dax-lang">DAX</span><button class="copy-btn" onclick="copyCode(event,this)">نسخ</button></div>
+                <pre class="dax-code"><span class="fn">Total_Cases</span> =
+<span class="kw">COUNT</span>(Cases[CaseID])</pre>
+              </div>
+            </div>
+          </div>
+
+          <div class="measure-item" onclick="toggle(this)">
+            <div class="measure-header">
+              <span class="measure-name">البلاغات المغلقة</span>
+              <span class="measure-fn">CALCULATE</span>
+              <div class="toggle-icon"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 10 10"><line x1="5" y1="1" x2="5" y2="9"/><line x1="1" y1="5" x2="9" y2="5"/></svg></div>
+            </div>
+            <div class="measure-body">
+              <div class="dax-block">
+                <div class="dax-topbar"><span class="dax-lang">DAX</span><button class="copy-btn" onclick="copyCode(event,this)">نسخ</button></div>
+                <pre class="dax-code"><span class="fn">Closed_Cases</span> =
+<span class="kw">CALCULATE</span>(
+    <span class="kw">COUNT</span>(Cases[CaseID]),
+    Cases[CaseStatus] = <span class="str">"مغلقة"</span>
+)</pre>
+              </div>
+            </div>
+          </div>
+
+          <div class="measure-item" onclick="toggle(this)">
+            <div class="measure-header">
+              <span class="measure-name">نسبة إغلاق البلاغات</span>
+              <span class="measure-fn">DIVIDE</span>
+              <div class="toggle-icon"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 10 10"><line x1="5" y1="1" x2="5" y2="9"/><line x1="1" y1="5" x2="9" y2="5"/></svg></div>
+            </div>
+            <div class="measure-body">
+              <div class="dax-block">
+                <div class="dax-topbar"><span class="dax-lang">DAX</span><button class="copy-btn" onclick="copyCode(event,this)">نسخ</button></div>
+                <pre class="dax-code"><span class="fn">Case_Closure_Rate</span> =
+<span class="kw">DIVIDE</span>(
+    [Closed_Cases],
+    [Total_Cases],
+    <span class="num">0</span>
+)</pre>
+              </div>
+            </div>
+          </div>
+
+          <div class="measure-item" onclick="toggle(this)">
+            <div class="measure-header">
+              <span class="measure-name">إجمالي الأنشطة الميدانية</span>
+              <span class="measure-fn">COUNT</span>
+              <div class="toggle-icon"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 10 10"><line x1="5" y1="1" x2="5" y2="9"/><line x1="1" y1="5" x2="9" y2="5"/></svg></div>
+            </div>
+            <div class="measure-body">
+              <div class="dax-block">
+                <div class="dax-topbar"><span class="dax-lang">DAX</span><button class="copy-btn" onclick="copyCode(event,this)">نسخ</button></div>
+                <pre class="dax-code"><span class="fn">Total_FA</span> =
+<span class="kw">COUNT</span>(FieldActivities[FAID])</pre>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+      <div>
+        <div class="section-label">المخططات البصرية</div>
+        <div class="charts-row">
+          <span class="chart-pill dax"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>بطاقة KPI — إجمالي البلاغات</span>
+          <span class="chart-pill dax"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 3v9l6 3"/></svg>Gauge — نسبة الإغلاق</span>
+          <span class="chart-pill tbl"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 6h4v14H3zM10 10h4v10h-4zM17 4h4v16h-4z"/></svg>شريطي — البلاغات × الفرع × الحالة</span>
+          <span class="chart-pill tbl"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 3v9M3 12h18" opacity=".5"/></svg>دائري — البلاغات حسب التصنيف</span>
+          <span class="chart-pill tbl"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 6h4v14H3zM10 10h4v10h-4zM17 4h4v16h-4z"/></svg>شريطي — البلاغات حسب المصدر</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════ تقرير 4 ══════════════════════════ -->
+<div class="report-card">
+  <div class="card-stripe"></div>
+  <div class="card-inner">
+    <div class="card-left">
+      <div class="report-num">04</div>
+      <div class="report-title">تقرير الصيانة وجودة المياه</div>
+      <div class="report-src">جداول المصدر</div>
+      <div><span class="source-tag">Maintenance</span><span class="source-tag">WaterQuality</span></div>
+    </div>
+    <div class="card-right">
+      <div>
+        <div class="section-label">مقاييس DAX — اضغط لعرض المعادلة</div>
+        <div class="measures-grid">
+
+          <div class="measure-item" onclick="toggle(this)">
+            <div class="measure-header">
+              <span class="measure-name">إجمالي تكلفة الصيانة</span>
+              <span class="measure-fn">SUM</span>
+              <div class="toggle-icon"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 10 10"><line x1="5" y1="1" x2="5" y2="9"/><line x1="1" y1="5" x2="9" y2="5"/></svg></div>
+            </div>
+            <div class="measure-body">
+              <div class="dax-block">
+                <div class="dax-topbar"><span class="dax-lang">DAX</span><button class="copy-btn" onclick="copyCode(event,this)">نسخ</button></div>
+                <pre class="dax-code"><span class="fn">Total_Maintenance_Cost</span> =
+<span class="kw">SUM</span>(Maintenance[Cost_SAR])</pre>
+              </div>
+            </div>
+          </div>
+
+          <div class="measure-item" onclick="toggle(this)">
+            <div class="measure-header">
+              <span class="measure-name">عدد أوامر الصيانة</span>
+              <span class="measure-fn">COUNT</span>
+              <div class="toggle-icon"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 10 10"><line x1="5" y1="1" x2="5" y2="9"/><line x1="1" y1="5" x2="9" y2="5"/></svg></div>
+            </div>
+            <div class="measure-body">
+              <div class="dax-block">
+                <div class="dax-topbar"><span class="dax-lang">DAX</span><button class="copy-btn" onclick="copyCode(event,this)">نسخ</button></div>
+                <pre class="dax-code"><span class="fn">Total_Work_Orders</span> =
+<span class="kw">COUNT</span>(Maintenance[MaintenanceID])</pre>
+              </div>
+            </div>
+          </div>
+
+          <div class="measure-item" onclick="toggle(this)">
+            <div class="measure-header">
+              <span class="measure-name">نسبة عينات المطابقة</span>
+              <span class="measure-fn">DIVIDE</span>
+              <div class="toggle-icon"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 10 10"><line x1="5" y1="1" x2="5" y2="9"/><line x1="1" y1="5" x2="9" y2="5"/></svg></div>
+            </div>
+            <div class="measure-body">
+              <div class="dax-block">
+                <div class="dax-topbar"><span class="dax-lang">DAX</span><button class="copy-btn" onclick="copyCode(event,this)">نسخ</button></div>
+                <pre class="dax-code"><span class="fn">WQ_Compliant_Rate</span> =
+<span class="kw">DIVIDE</span>(
+    <span class="kw">CALCULATE</span>(
+        <span class="kw">COUNT</span>(WaterQuality[SampleID]),
+        WaterQuality[pH_Compliant]  = <span class="str">"Y"</span>,
+        WaterQuality[Cl_Compliant]  = <span class="str">"Y"</span>,
+        WaterQuality[TDS_Compliant] = <span class="str">"Y"</span>
+    ),
+    <span class="kw">COUNT</span>(WaterQuality[SampleID]),
+    <span class="num">0</span>
+)</pre>
+              </div>
+            </div>
+          </div>
+
+          <div class="measure-item" onclick="toggle(this)">
+            <div class="measure-header">
+              <span class="measure-name">تصنيف مستوى التوربيدية</span>
+              <span class="measure-fn">IF</span>
+              <div class="toggle-icon"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 10 10"><line x1="5" y1="1" x2="5" y2="9"/><line x1="1" y1="5" x2="9" y2="5"/></svg></div>
+            </div>
+            <div class="measure-body">
+              <div class="dax-block">
+                <div class="dax-topbar"><span class="dax-lang">DAX — عمود محسوب</span><button class="copy-btn" onclick="copyCode(event,this)">نسخ</button></div>
+                <pre class="dax-code"><span class="fn">Turbidity_Level</span> =
+<span class="kw">IF</span>(
+    WaterQuality[Turbidity_NTU] > <span class="num">1</span>,
+    <span class="str">"مرتفع"</span>,
+    <span class="str">"طبيعي"</span>
+)</pre>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+      <div>
+        <div class="section-label">المخططات البصرية</div>
+        <div class="charts-row">
+          <span class="chart-pill dax"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>بطاقة KPI — إجمالي التكلفة</span>
+          <span class="chart-pill dax"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 3v9l6 3"/></svg>Gauge — نسبة المطابقة</span>
+          <span class="chart-pill tbl"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 6h4v14H3zM10 10h4v10h-4zM17 4h4v16h-4z"/></svg>شريطي مجمع — pH / Cl / TDS</span>
+          <span class="chart-pill tbl"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 3v14h14M6 17l4-4 4 4 4-8"/></svg>شريطي أفقي — حسب نوع الصيانة</span>
+          <span class="chart-pill tbl"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 3v9M3 12h18" opacity=".5"/></svg>دائري — الصيانة حسب الأولوية</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════ تقرير 5 ══════════════════════════ -->
+<div class="report-card">
+  <div class="card-stripe"></div>
+  <div class="card-inner">
+    <div class="card-left">
+      <div class="report-num">05</div>
+      <div class="report-title">تقرير الأداء التشغيلي للفروع</div>
+      <div class="report-src">جداول المصدر</div>
+      <div><span class="source-tag">All Tables</span><span class="source-tag">Branches</span><span class="source-tag">BusinessUnits</span></div>
+    </div>
+    <div class="card-right">
+      <div>
+        <div class="section-label">مقاييس DAX — اضغط لعرض المعادلة</div>
+        <div class="measures-grid">
+
+          <div class="measure-item" onclick="toggle(this)">
+            <div class="measure-header">
+              <span class="measure-name">العملاء الفريدون</span>
+              <span class="measure-fn">DISTINCTCOUNT</span>
+              <div class="toggle-icon"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 10 10"><line x1="5" y1="1" x2="5" y2="9"/><line x1="1" y1="5" x2="9" y2="5"/></svg></div>
+            </div>
+            <div class="measure-body">
+              <div class="dax-block">
+                <div class="dax-topbar"><span class="dax-lang">DAX</span><button class="copy-btn" onclick="copyCode(event,this)">نسخ</button></div>
+                <pre class="dax-code"><span class="fn">Unique_Customers</span> =
+<span class="kw">DISTINCTCOUNT</span>(Customers[AccountID])</pre>
+              </div>
+            </div>
+          </div>
+
+          <div class="measure-item" onclick="toggle(this)">
+            <div class="measure-header">
+              <span class="measure-name">نسبة تحقيق الهدف</span>
+              <span class="measure-fn">DIVIDE</span>
+              <div class="toggle-icon"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 10 10"><line x1="5" y1="1" x2="5" y2="9"/><line x1="1" y1="5" x2="9" y2="5"/></svg></div>
+            </div>
+            <div class="measure-body">
+              <div class="dax-block">
+                <div class="dax-topbar"><span class="dax-lang">DAX</span><button class="copy-btn" onclick="copyCode(event,this)">نسخ</button></div>
+                <pre class="dax-code"><span class="fn">Branch_Target_Rate</span> =
+<span class="kw">DIVIDE</span>(
+    <span class="kw">SUM</span>(Branches[ActualCustomers]),
+    <span class="kw">SUM</span>(Branches[TargetCustomers]),
+    <span class="num">0</span>
+)</pre>
+              </div>
+            </div>
+          </div>
+
+          <div class="measure-item" onclick="toggle(this)">
+            <div class="measure-header">
+              <span class="measure-name">متوسط تكلفة الصيانة</span>
+              <span class="measure-fn">DIVIDE</span>
+              <div class="toggle-icon"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 10 10"><line x1="5" y1="1" x2="5" y2="9"/><line x1="1" y1="5" x2="9" y2="5"/></svg></div>
+            </div>
+            <div class="measure-body">
+              <div class="dax-block">
+                <div class="dax-topbar"><span class="dax-lang">DAX</span><button class="copy-btn" onclick="copyCode(event,this)">نسخ</button></div>
+                <pre class="dax-code"><span class="fn">Avg_Maintenance_Cost</span> =
+<span class="kw">DIVIDE</span>(
+    <span class="kw">SUM</span>(Maintenance[Cost_SAR]),
+    <span class="kw">DISTINCTCOUNT</span>(Maintenance[BranchCode]),
+    <span class="num">0</span>
+)</pre>
+              </div>
+            </div>
+          </div>
+
+          <div class="measure-item" onclick="toggle(this)">
+            <div class="measure-header">
+              <span class="measure-name">معدل التحصيل للفرع</span>
+              <span class="measure-fn">DIVIDE</span>
+              <div class="toggle-icon"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 10 10"><line x1="5" y1="1" x2="5" y2="9"/><line x1="1" y1="5" x2="9" y2="5"/></svg></div>
+            </div>
+            <div class="measure-body">
+              <div class="dax-block">
+                <div class="dax-topbar"><span class="dax-lang">DAX</span><button class="copy-btn" onclick="copyCode(event,this)">نسخ</button></div>
+                <pre class="dax-code"><span class="fn">Branch_Collection_Rate</span> =
+<span class="kw">DIVIDE</span>(
+    <span class="kw">SUM</span>(Billing[PaidAmount_SAR]),
+    <span class="kw">SUM</span>(Billing[BillAmount_SAR]),
+    <span class="num">0</span>
+)</pre>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+      <div>
+        <div class="section-label">المخططات البصرية</div>
+        <div class="charts-row">
+          <span class="chart-pill dax"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 6h4v14H3zM10 10h4v10h-4zM17 4h4v16h-4z"/></svg>شريطي مكدس — فعلي vs مستهدف</span>
+          <span class="chart-pill dax"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="3 17 9 11 13 15 21 7"/></svg>خطي — نسبة التحصيل الشهرية</span>
+          <span class="chart-pill tbl"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 6h4v14H3zM10 10h4v10h-4zM17 4h4v16h-4z"/></svg>شريطي — مقارنة البلاغات حسب الفرع</span>
+          <span class="chart-pill tbl"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M3 15h18M9 3v18"/></svg>Matrix — الفروع × المؤشرات</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════ داشبورد ختامي ══════════════════════════ -->
+<div class="dashboard-card">
+  <div>
+    <div style="font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--c5);margin-bottom:12px;font-weight:600">المشروع الختامي</div>
+    <div class="dashboard-title">Dashboard تشغيلي <span>شامل</span></div>
+    <p class="dashboard-sub">يختار المتدرب أفضل مرئية من كل تقرير ويرفع الملف إلى Power BI Service، ثم يعمل Pin للمخططات في Dashboard واحدة، وأخيراً يضيف ثلاثة Slicers للتفاعل الكامل.</p>
+    <div class="pin-steps">
+      <div class="pin-step"><div class="dot"></div>بناء التقارير الخمسة في Desktop</div>
+      <div class="pin-step"><div class="dot"></div>Publish إلى Power BI Service</div>
+      <div class="pin-step"><div class="dot"></div>Pin للمخططات الأهم</div>
+      <div class="pin-step"><div class="dot"></div>إضافة Slicer: وحدة الأعمال / الفرع / الشهر</div>
+      <div class="pin-step"><div class="dot"></div>مشاركة الـ Dashboard مع الزملاء</div>
+    </div>
+  </div>
+  <div class="big-num">D</div>
+</div>
+
+</main>
+
+<script>
+function toggle(el) {
+  const isOpen = el.classList.contains('open');
+  // أغلق جميع المفتوحة في نفس الشبكة
+  el.closest('.measures-grid').querySelectorAll('.measure-item.open').forEach(function(m){
+    if(m !== el) m.classList.remove('open');
+  });
+  el.classList.toggle('open', !isOpen);
+}
+
+function copyCode(e, btn) {
+  e.stopPropagation();
+  const pre = btn.closest('.dax-block').querySelector('pre');
+  const text = pre.innerText;
+  navigator.clipboard.writeText(text).then(function() {
+    btn.textContent = '✓ تم';
+    btn.classList.add('copied');
+    setTimeout(function(){ btn.textContent = 'نسخ'; btn.classList.remove('copied'); }, 2000);
+  });
+}
+</script>
+</body>
+</html>
