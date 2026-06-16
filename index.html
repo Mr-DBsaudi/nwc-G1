@@ -119,8 +119,8 @@
   <p class="hero-sub">كل متدرب يبني خمسة تقارير تدريجية، ثم يجمعها في Dashboard تشغيلي تفاعلي كمشروع ختامي.</p>
   <div class="stats-row">
     <div class="stat"><span class="stat-num">5</span><span class="stat-lbl">تقارير تدريبية</span></div>
-    <div class="stat"><span class="stat-num">18</span><span class="stat-lbl">مقياس DAX</span></div>
-    <div class="stat"><span class="stat-num">14</span><span class="stat-lbl">مخططاً بصرياً</span></div>
+    <div class="stat"><span class="stat-num">25</span><span class="stat-lbl">مقياس DAX</span></div>
+    <div class="stat"><span class="stat-num">15</span><span class="stat-lbl">مخططاً بصرياً</span></div>
     <div class="stat"><span class="stat-num">9</span><span class="stat-lbl">جداول مترابطة</span></div>
   </div>
 </header>
@@ -223,6 +223,208 @@
 
         </div>
       </div>
+
+      <!-- ── كشف الاستهلاك الشاذ Box & Whisker ── -->
+      <div>
+        <div class="section-label">كشف الاستهلاك الشاذ — مقاييس Box &amp; Whisker لكل تصنيف عميل</div>
+        <div class="measures-grid">
+
+          <div class="measure-item" onclick="toggle(this)">
+            <div class="measure-header">
+              <span class="measure-name">استهلاك العميل (مساعد)</span>
+              <span class="measure-fn">SUMX</span>
+              <div class="toggle-icon"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 10 10"><line x1="5" y1="1" x2="5" y2="9"/><line x1="1" y1="5" x2="9" y2="5"/></svg></div>
+            </div>
+            <div class="measure-body">
+              <div class="dax-block">
+                <div class="dax-topbar"><span class="dax-lang">DAX</span><button class="copy-btn" onclick="copyCode(event,this)">نسخ</button></div>
+                <pre class="dax-code"><span class="cmt">-- استهلاك كل عميل ضمن السياق الحالي (التصنيف)</span>
+<span class="fn">Customer_Consumption</span> =
+<span class="kw">SUMX</span>(
+    <span class="kw">VALUES</span>(Customers[AccountID]),
+    <span class="kw">CALCULATE</span>(<span class="kw">SUM</span>(Billing[Consumption_m3]))
+)</pre>
+              </div>
+            </div>
+          </div>
+
+          <div class="measure-item" onclick="toggle(this)">
+            <div class="measure-header">
+              <span class="measure-name">الربيع الأول Q1</span>
+              <span class="measure-fn">PERCENTILEX.INC</span>
+              <div class="toggle-icon"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 10 10"><line x1="5" y1="1" x2="5" y2="9"/><line x1="1" y1="5" x2="9" y2="5"/></svg></div>
+            </div>
+            <div class="measure-body">
+              <div class="dax-block">
+                <div class="dax-topbar"><span class="dax-lang">DAX</span><button class="copy-btn" onclick="copyCode(event,this)">نسخ</button></div>
+                <pre class="dax-code"><span class="cmt">-- الربع الأدنى لاستهلاك العملاء داخل التصنيف</span>
+<span class="fn">Consumption_Q1</span> =
+<span class="kw">PERCENTILEX.INC</span>(
+    <span class="kw">VALUES</span>(Customers[AccountID]),
+    <span class="kw">CALCULATE</span>(<span class="kw">SUM</span>(Billing[Consumption_m3])),
+    <span class="num">0.25</span>
+)</pre>
+              </div>
+            </div>
+          </div>
+
+          <div class="measure-item" onclick="toggle(this)">
+            <div class="measure-header">
+              <span class="measure-name">الوسيط Median</span>
+              <span class="measure-fn">PERCENTILEX.INC</span>
+              <div class="toggle-icon"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 10 10"><line x1="5" y1="1" x2="5" y2="9"/><line x1="1" y1="5" x2="9" y2="5"/></svg></div>
+            </div>
+            <div class="measure-body">
+              <div class="dax-block">
+                <div class="dax-topbar"><span class="dax-lang">DAX</span><button class="copy-btn" onclick="copyCode(event,this)">نسخ</button></div>
+                <pre class="dax-code"><span class="cmt">-- الوسيط (الربع الثاني) للاستهلاك</span>
+<span class="fn">Consumption_Median</span> =
+<span class="kw">PERCENTILEX.INC</span>(
+    <span class="kw">VALUES</span>(Customers[AccountID]),
+    <span class="kw">CALCULATE</span>(<span class="kw">SUM</span>(Billing[Consumption_m3])),
+    <span class="num">0.5</span>
+)</pre>
+              </div>
+            </div>
+          </div>
+
+          <div class="measure-item" onclick="toggle(this)">
+            <div class="measure-header">
+              <span class="measure-name">الربيع الثالث Q3</span>
+              <span class="measure-fn">PERCENTILEX.INC</span>
+              <div class="toggle-icon"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 10 10"><line x1="5" y1="1" x2="5" y2="9"/><line x1="1" y1="5" x2="9" y2="5"/></svg></div>
+            </div>
+            <div class="measure-body">
+              <div class="dax-block">
+                <div class="dax-topbar"><span class="dax-lang">DAX</span><button class="copy-btn" onclick="copyCode(event,this)">نسخ</button></div>
+                <pre class="dax-code"><span class="cmt">-- الربع الأعلى لاستهلاك العملاء داخل التصنيف</span>
+<span class="fn">Consumption_Q3</span> =
+<span class="kw">PERCENTILEX.INC</span>(
+    <span class="kw">VALUES</span>(Customers[AccountID]),
+    <span class="kw">CALCULATE</span>(<span class="kw">SUM</span>(Billing[Consumption_m3])),
+    <span class="num">0.75</span>
+)</pre>
+              </div>
+            </div>
+          </div>
+
+          <div class="measure-item" onclick="toggle(this)">
+            <div class="measure-header">
+              <span class="measure-name">المدى الربيعي IQR</span>
+              <span class="measure-fn">VAR</span>
+              <div class="toggle-icon"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 10 10"><line x1="5" y1="1" x2="5" y2="9"/><line x1="1" y1="5" x2="9" y2="5"/></svg></div>
+            </div>
+            <div class="measure-body">
+              <div class="dax-block">
+                <div class="dax-topbar"><span class="dax-lang">DAX</span><button class="copy-btn" onclick="copyCode(event,this)">نسخ</button></div>
+                <pre class="dax-code"><span class="cmt">-- المدى الربيعي = Q3 − Q1</span>
+<span class="fn">Consumption_IQR</span> =
+[Consumption_Q3] - [Consumption_Q1]</pre>
+              </div>
+            </div>
+          </div>
+
+          <div class="measure-item" onclick="toggle(this)">
+            <div class="measure-header">
+              <span class="measure-name">الحد الأدنى للـ Whisker</span>
+              <span class="measure-fn">MAXX</span>
+              <div class="toggle-icon"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 10 10"><line x1="5" y1="1" x2="5" y2="9"/><line x1="1" y1="5" x2="9" y2="5"/></svg></div>
+            </div>
+            <div class="measure-body">
+              <div class="dax-block">
+                <div class="dax-topbar"><span class="dax-lang">DAX</span><button class="copy-btn" onclick="copyCode(event,this)">نسخ</button></div>
+                <pre class="dax-code"><span class="cmt">-- الشارب السفلي: أصغر قيمة فعلية ≥ Q1 − 1.5×IQR</span>
+<span class="fn">Lower_Whisker</span> =
+<span class="kw">VAR</span> LowerFence = [Consumption_Q1] - <span class="num">1.5</span> * [Consumption_IQR]
+<span class="kw">RETURN</span>
+    <span class="kw">MINX</span>(
+        <span class="kw">FILTER</span>(
+            <span class="kw">VALUES</span>(Customers[AccountID]),
+            <span class="kw">CALCULATE</span>(<span class="kw">SUM</span>(Billing[Consumption_m3])) >= LowerFence
+        ),
+        <span class="kw">CALCULATE</span>(<span class="kw">SUM</span>(Billing[Consumption_m3]))
+    )</pre>
+              </div>
+            </div>
+          </div>
+
+          <div class="measure-item" onclick="toggle(this)">
+            <div class="measure-header">
+              <span class="measure-name">الحد الأعلى للـ Whisker</span>
+              <span class="measure-fn">MAXX</span>
+              <div class="toggle-icon"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 10 10"><line x1="5" y1="1" x2="5" y2="9"/><line x1="1" y1="5" x2="9" y2="5"/></svg></div>
+            </div>
+            <div class="measure-body">
+              <div class="dax-block">
+                <div class="dax-topbar"><span class="dax-lang">DAX</span><button class="copy-btn" onclick="copyCode(event,this)">نسخ</button></div>
+                <pre class="dax-code"><span class="cmt">-- الشارب العلوي: أكبر قيمة فعلية ≤ Q3 + 1.5×IQR</span>
+<span class="fn">Upper_Whisker</span> =
+<span class="kw">VAR</span> UpperFence = [Consumption_Q3] + <span class="num">1.5</span> * [Consumption_IQR]
+<span class="kw">RETURN</span>
+    <span class="kw">MAXX</span>(
+        <span class="kw">FILTER</span>(
+            <span class="kw">VALUES</span>(Customers[AccountID]),
+            <span class="kw">CALCULATE</span>(<span class="kw">SUM</span>(Billing[Consumption_m3])) <= UpperFence
+        ),
+        <span class="kw">CALCULATE</span>(<span class="kw">SUM</span>(Billing[Consumption_m3]))
+    )</pre>
+              </div>
+            </div>
+          </div>
+
+          <div class="measure-item" onclick="toggle(this)">
+            <div class="measure-header">
+              <span class="measure-name">عدد العملاء الشاذين</span>
+              <span class="measure-fn">COUNTROWS</span>
+              <div class="toggle-icon"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 10 10"><line x1="5" y1="1" x2="5" y2="9"/><line x1="1" y1="5" x2="9" y2="5"/></svg></div>
+            </div>
+            <div class="measure-body">
+              <div class="dax-block">
+                <div class="dax-topbar"><span class="dax-lang">DAX</span><button class="copy-btn" onclick="copyCode(event,this)">نسخ</button></div>
+                <pre class="dax-code"><span class="cmt">-- العملاء خارج حدود الـ 1.5×IQR = قيم شاذة</span>
+<span class="fn">Outlier_Customers</span> =
+<span class="kw">VAR</span> LowerFence = [Consumption_Q1] - <span class="num">1.5</span> * [Consumption_IQR]
+<span class="kw">VAR</span> UpperFence = [Consumption_Q3] + <span class="num">1.5</span> * [Consumption_IQR]
+<span class="kw">RETURN</span>
+    <span class="kw">COUNTROWS</span>(
+        <span class="kw">FILTER</span>(
+            <span class="kw">VALUES</span>(Customers[AccountID]),
+            <span class="kw">VAR</span> c = <span class="kw">CALCULATE</span>(<span class="kw">SUM</span>(Billing[Consumption_m3]))
+            <span class="kw">RETURN</span> c < LowerFence || c > UpperFence
+        )
+    )</pre>
+              </div>
+            </div>
+          </div>
+
+          <div class="measure-item" onclick="toggle(this)">
+            <div class="measure-header">
+              <span class="measure-name">علامة الشذوذ للعميل</span>
+              <span class="measure-fn">SWITCH</span>
+              <div class="toggle-icon"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 10 10"><line x1="5" y1="1" x2="5" y2="9"/><line x1="1" y1="5" x2="9" y2="5"/></svg></div>
+            </div>
+            <div class="measure-body">
+              <div class="dax-block">
+                <div class="dax-topbar"><span class="dax-lang">DAX</span><button class="copy-btn" onclick="copyCode(event,this)">نسخ</button></div>
+                <pre class="dax-code"><span class="cmt">-- تصنيف العميل: شاذ مرتفع / شاذ منخفض / طبيعي</span>
+<span class="fn">Outlier_Flag</span> =
+<span class="kw">VAR</span> c     = [Customer_Consumption]
+<span class="kw">VAR</span> lower = [Consumption_Q1] - <span class="num">1.5</span> * [Consumption_IQR]
+<span class="kw">VAR</span> upper = [Consumption_Q3] + <span class="num">1.5</span> * [Consumption_IQR]
+<span class="kw">RETURN</span>
+    <span class="kw">SWITCH</span>(
+        <span class="kw">TRUE</span>(),
+        c > upper, <span class="str">"شاذ — استهلاك مرتفع"</span>,
+        c < lower, <span class="str">"شاذ — استهلاك منخفض"</span>,
+        <span class="str">"طبيعي"</span>
+    )</pre>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
       <div>
         <div class="section-label">المخططات البصرية</div>
         <div class="charts-row">
@@ -231,6 +433,7 @@
           <span class="chart-pill dax"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 3v9l6 3"/></svg>Gauge — نسبة الذكية</span>
           <span class="chart-pill tbl"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 3v9M3 12h18" opacity=".5"/></svg>دائري — توزيع MeterStatus</span>
           <span class="chart-pill tbl"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 6h4v14H3zM10 10h4v10h-4zM17 4h4v16h-4z"/></svg>شريطي — العملاء حسب CustomerClass</span>
+          <span class="chart-pill dax"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="6" y="8" width="4" height="8"/><rect x="14" y="6" width="4" height="12"/><path d="M8 8V4M8 16v4M16 6V2M16 18v4M3 12h2M19 12h2"/></svg>Box &amp; Whisker — الاستهلاك الشاذ حسب التصنيف</span>
         </div>
       </div>
     </div>
